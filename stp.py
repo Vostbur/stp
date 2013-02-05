@@ -8,11 +8,12 @@ import sys
 import urllib2, socket
 import logging
 import threading
-import time
+import datetime, time
 import json
 
 def signal_handler(signal, frame):
     logging.info('Ctrl+C pressed. Stopping services...')
+    serv.terminate()
     sched.terminate()
     time.sleep(1)
     sys.exit(0)
@@ -30,17 +31,22 @@ class Scheduler:
         now = time.localtime(time.time())
         if now.tm_min != self._last_check.tm_min:
             for k, v in stantions.items():
-                if int(v['hour']) == now.tm_hour and int(v['min']) == now.tm_min:
-                    logging.info('Scheduling activated for ' + v['file'])
-                    newthread = DownloadThread(v['url'], v['file'], int(v['duration'])*60, self._terminate)
+                if k == 'common':
+                    continue
+                now = time.localtime(time.time()) if 'shift' not in v else time.localtime(time.time()+(int(v['shift'])*3600))
+                d = [int(x) for x in v['day'].split(',')]
+                if  now.tm_hour == int(v['hour']) and now.tm_min == int(v['min']) and now.tm_wday in d:
+                    logging.info(u'Scheduling activated for ' + k)
+                    newthread = DownloadThread(v['url'], stantions['common']['folder'], v['id'], int(v['duration'])*60, self._terminate)
                     newthread.daemon = True
                     newthread.start()
         self._last_check = now
 
 class DownloadThread(threading.Thread):
-    def __init__(self, stream_url, fname, duration, terminate):
+    def __init__(self, stream_url, dname, feed_id, duration, terminate):
         self.stream_url = stream_url
-        self.fname = fname
+        fname = '%s_%s.mp3' % (datetime.datetime.now().strftime('%Y-%m-%d_%H-%M'), feed_id)
+        self.fname = os.path.join(dname, fname)
         self.duration = duration
         self._terminate = terminate
         self.buf_size = 4096
@@ -72,7 +78,7 @@ class DownloadThread(threading.Thread):
                     self.connect()
                 else:
                     continue
-        logging.info('FINISH CAPTURE TO ' + self.fname)
+        logging.info(u'Записан файл ' + self.fname)
 
 class Config:
     def __init__(self, fname):
@@ -86,6 +92,13 @@ class Config:
     def is_updated(self):
         return (self._lastmtime != os.stat(self.fname)[stat.ST_MTIME])
 
+class WebServer:
+    def __init__(self):
+        pass
+
+    def terminate(self):
+        logging.info('Stopping web-server')
+
 if __name__ == '__main__':
     logging.basicConfig(format = u'%(filename)s[LINE:%(lineno)d]# %(levelname)-8s [%(asctime)s]  %(message)s',
                         level = logging.DEBUG,
@@ -95,8 +108,11 @@ if __name__ == '__main__':
 
     conf = Config('stations.json')
     stantions = conf.load()
+    
     sched = Scheduler()
     
+    serv = WebServer()
+
     while True:
         if conf.is_updated():
             logging.info('STP config updated')

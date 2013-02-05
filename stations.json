@@ -1,23 +1,22 @@
 {
-    "nashe1": {
-        "url": "http://94.25.53.133/nashe-128.mp3",
-        "file": "nashe1.mp3",
-        "hour": "18",
-        "min": "08",
-        "duration": "10"
+    "common": {
+        "folder": "mp3"
     },
-    "nashe2": {
+    "Наше радио": {
         "url": "http://94.25.53.133/nashe-128.mp3",
-        "file": "nashe2.mp3",
-        "hour": "19",
-        "min": "00",
-        "duration": "50"
+        "id": "nashe",
+        "day": "1",
+        "hour": "21",
+        "min": "54",
+        "duration": "1"
     },
-    "osoboe_mnenie": {
+    "Особое мение (Эхо Москвы)": {
         "url": "http://81.19.85.200/echo32.mp3",
-        "file": "osoboe_mnenie.mp3",
-        "hour": "19",
-        "min": "18",
-        "duration": "60"
+        "id": "osoboe_mnenie",
+        "day": "1,2,3",
+        "hour": "20",
+        "min": "54",
+        "shift": "-1",
+        "duration": "1"
     }
 }
