@@ -1,0 +1,23 @@
+{
+    "nashe1": {
+        "url": "http://94.25.53.133/nashe-128.mp3",
+        "file": "nashe1.mp3",
+        "hour": "18",
+        "min": "08",
+        "duration": "10"
+    },
+    "nashe2": {
+        "url": "http://94.25.53.133/nashe-128.mp3",
+        "file": "nashe2.mp3",
+        "hour": "19",
+        "min": "00",
+        "duration": "50"
+    },
+    "osoboe_mnenie": {
+        "url": "http://81.19.85.200/echo32.mp3",
+        "file": "osoboe_mnenie.mp3",
+        "hour": "19",
+        "min": "18",
+        "duration": "60"
+    }
+}
