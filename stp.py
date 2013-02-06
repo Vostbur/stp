@@ -10,10 +10,11 @@ import logging
 import threading
 import datetime, time
 import json
+from SocketServer import ThreadingMixIn
+from BaseHTTPServer import HTTPServer, BaseHTTPRequestHandler
 
 def signal_handler(signal, frame):
     logging.info('Ctrl+C pressed. Stopping services...')
-    serv.terminate()
     sched.terminate()
     time.sleep(1)
     sys.exit(0)
@@ -24,7 +25,7 @@ class Scheduler:
         self._last_check = time.localtime(time.time()-60)
     
     def terminate(self):
-        logging.info('Scheduler received termination request')
+        logging.info('scheduler: received termination request')
         self._terminate.set()
 
     def run(self):
@@ -36,7 +37,7 @@ class Scheduler:
                 now = time.localtime(time.time()) if 'shift' not in v else time.localtime(time.time()+(int(v['shift'])*3600))
                 d = [int(x) for x in v['day'].split(',')]
                 if  now.tm_hour == int(v['hour']) and now.tm_min == int(v['min']) and now.tm_wday in d:
-                    logging.info(u'Scheduling activated for ' + k)
+                    logging.info(u'scheduling: activated for ' + k)
                     newthread = DownloadThread(v['url'], stantions['common']['folder'], v['id'], int(v['duration'])*60, self._terminate)
                     newthread.daemon = True
                     newthread.start()
@@ -92,12 +93,21 @@ class Config:
     def is_updated(self):
         return (self._lastmtime != os.stat(self.fname)[stat.ST_MTIME])
 
-class WebServer:
-    def __init__(self):
-        pass
+class Handler(BaseHTTPRequestHandler):
+    def do_GET(self):
+        logging.info('web-server: GET request. src=%s params=%s' % (self.client_address,  self.path))
+        self.send_response(200)
+        self.send_header("Content-type", "text/plain")
+        self.end_headers()
+        self.wfile.write("Hello World!")
 
-    def terminate(self):
-        logging.info('Stopping web-server')
+class ThreadingHTTPServer(ThreadingMixIn, HTTPServer):
+    pass
+
+# Переделать в класс, чтобы работало сообщение terminate
+def serve_on_port(port):
+    server = ThreadingHTTPServer(('localhost', port), Handler)
+    server.serve_forever()
 
 if __name__ == '__main__':
     logging.basicConfig(format = u'%(filename)s[LINE:%(lineno)d]# %(levelname)-8s [%(asctime)s]  %(message)s',
@@ -111,7 +121,11 @@ if __name__ == '__main__':
     
     sched = Scheduler()
     
-    serv = WebServer()
+    port = 8082
+    logging.info('web-server: started on localhost:%d' % port)
+    serv = threading.Thread(target=serve_on_port, args=[port])
+    serv.daemon = True
+    serv.start()
 
     while True:
         if conf.is_updated():
