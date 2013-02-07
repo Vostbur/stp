@@ -5,17 +5,17 @@
     "Наше радио": {
         "url": "http://94.25.53.133/nashe-128.mp3",
         "id": "nashe",
-        "day": "2",
-        "hour": "22",
-        "min": "34",
+        "day": "3",
+        "hour": "20",
+        "min": "10",
         "duration": "1"
     },
     "Особое мение (Эхо Москвы)": {
         "url": "http://81.19.85.200/echo32.mp3",
         "id": "osoboe_mnenie",
         "day": "1,2,3",
-        "hour": "21",
-        "min": "34",
+        "hour": "19",
+        "min": "10",
         "shift": "-1",
         "duration": "1"
     }
