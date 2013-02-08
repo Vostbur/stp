@@ -1,15 +1,10 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-import os
-import stat
-import glob
-import signal
-import sys
+import os, stat, glob, sys
+import signal, logging
 import urllib2, socket
-import logging
-import threading
-import Queue
+import threading, Queue
 import datetime, time
 import json
 from SocketServer import ThreadingMixIn
@@ -160,8 +155,20 @@ class RSS:
         rss = '\n'.join(rss)
         self.save(rss)
 
+def clear_warehouse(folder, store):
+    if store == 0:
+        return
+    for f in glob.glob(os.path.join(folder, '*.mp3')):
+        fmtime = os.path.getmtime(f)
+        if (time.time() - fmtime) > store*3600*24:
+            try:
+                os.remove(f)
+                logging.info("Obsolete file %s deleted" % f)
+            except:
+                logging.info("Can't deleted obsolete file %s " % f)
+
 if __name__ == '__main__':
-    logging.basicConfig(format = u'%(filename)s[LINE:%(lineno)d]# %(levelname)-8s [%(asctime)s]  %(message)s',
+    logging.basicConfig(format = u'%(levelname)-8s [%(asctime)s]  %(message)s',
                         level = logging.DEBUG,
                         filename = __name__ + '.log')
     logging.info('STP started')
@@ -190,5 +197,6 @@ if __name__ == '__main__':
         if not queue.empty():
             fname = queue.get()
             logging.info('STP: New file [%s] detected' % fname)
+            clear_warehouse(stantions['common']['folder'], int(stantions['common']['store']))
             rss.generate()
         time.sleep(1)

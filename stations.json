@@ -1,21 +1,22 @@
 {
     "common": {
-        "folder": "mp3"
+        "folder": "mp3",
+        "store": "2"
     },
     "Наше радио": {
         "url": "http://94.25.53.133/nashe-128.mp3",
         "id": "nashe",
-        "day": "3",
+        "day": "4",
         "hour": "20",
-        "min": "10",
+        "min": "00",
         "duration": "1"
     },
     "Особое мение (Эхо Москвы)": {
         "url": "http://81.19.85.200/echo32.mp3",
         "id": "osoboe_mnenie",
-        "day": "1,2,3",
-        "hour": "19",
-        "min": "10",
+        "day": "1,2,3,4",
+        "hour": "18",
+        "min": "54",
         "shift": "-1",
         "duration": "1"
     }
